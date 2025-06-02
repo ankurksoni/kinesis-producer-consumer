@@ -2,6 +2,48 @@
 
 This project is a fully featured AWS infrastructure setup for streaming data processing using Kinesis. It uses a monorepo structure with AWS CDK to define and deploy all resources.
 
+## Table of Contents
+
+- [Architecture](#architecture)
+  - [Data Flow Architecture](#data-flow-architecture)
+- [Prerequisites](#prerequisites)
+- [AWS Configuration Requirements](#aws-configuration-requirements)
+  - [AWS CLI Setup](#aws-cli-setup)
+  - [Required AWS Permissions](#required-aws-permissions)
+  - [AWS CDK Bootstrap](#aws-cdk-bootstrap)
+  - [AWS Region Considerations](#aws-region-considerations)
+- [Getting Started](#getting-started)
+  - [1. Clone the Repository](#1-clone-the-repository)
+  - [2. Install Dependencies](#2-install-dependencies)
+  - [3. Build the Project](#3-build-the-project)
+  - [4. Deploy the Infrastructure](#4-deploy-the-infrastructure)
+- [Project Structure](#project-structure)
+- [Monorepo with Turborepo](#monorepo-with-turborepo)
+  - [How Turborepo Binds the Projects](#how-turborepo-binds-the-projects)
+  - [Dependency Graph](#dependency-graph)
+  - [Caching and Performance](#caching-and-performance)
+- [Available Scripts](#available-scripts)
+  - [Build Commands](#build-commands)
+  - [Deployment Commands](#deployment-commands)
+  - [Cleanup Commands](#cleanup-commands)
+- [Lambda Functions](#lambda-functions)
+  - [Producer Lambda](#producer-lambda)
+  - [Consumer Lambda](#consumer-lambda)
+- [Sample CloudWatch Logs](#sample-cloudwatch-logs)
+  - [Producer Lambda Logs](#producer-lambda-logs)
+  - [Consumer Lambda Logs](#consumer-lambda-logs)
+- [Customization](#customization)
+  - [Modifying the Stream](#modifying-the-stream)
+  - [Customizing the Producer](#customizing-the-producer)
+  - [Customizing the Consumer](#customizing-the-consumer)
+- [Observability](#observability)
+- [Cleanup](#cleanup)
+- [Troubleshooting](#troubleshooting)
+  - [Lambda Module Errors](#lambda-module-errors)
+  - [Permission Issues](#permission-issues)
+  - [Deployment Failures](#deployment-failures)
+- [License](#license)
+
 ## Architecture
 
 The project implements a complete streaming data pipeline with three main components:
