@@ -1,0 +1,10 @@
+{
+  "name": "consumer",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "esbuild lambda/index.ts --bundle --platform=node --target=node20 --outfile=lambda/dist/index.js",
+    "clean": "rm -rf lambda/dist",
+    "prebuild": "npm run clean && mkdir -p lambda/dist"
+  }
+} 

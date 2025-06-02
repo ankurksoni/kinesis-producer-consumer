@@ -1,0 +1,47 @@
+{
+  "name": "kinesis-nx",
+  "private": true,
+  "scripts": {
+    "build": "npm run build:stream && npm run build:producer && npm run build:consumer",
+    "build:stream": "cd packages/infra/stream && tsc",
+    "build:producer": "cd packages/infra/producer && tsc",
+    "build:consumer": "cd packages/infra/consumer && tsc",
+    "build:lambda:producer": "cd packages/infra/producer && npm run build",
+    "build:lambda:consumer": "cd packages/infra/consumer && npm run build",
+    "build:lambda:all": "npm run build:lambda:producer && npm run build:lambda:consumer",
+    "deploy": "npm run deploy:stream && npm run deploy:producer && npm run deploy:consumer",
+    "deploy:stream": "cd packages/infra/stream && tsc && npx cdk deploy --app \"node dist/main.js\"",
+    "deploy:producer": "npm run build:producer && npm run build:lambda:producer && cd packages/infra/producer && npx cdk deploy --app \"node dist/main.js\"",
+    "deploy:consumer": "npm run build:consumer && npm run build:lambda:consumer && cd packages/infra/consumer && npx cdk deploy --app \"node dist/main.js\"",
+    "destroy:consumer": "cd packages/infra/consumer && tsc && npx cdk destroy --app \"node dist/main.js\" --force",
+    "destroy:producer": "cd packages/infra/producer && tsc && npx cdk destroy --app \"node dist/main.js\" --force",
+    "destroy:stream": "cd packages/infra/stream && tsc && npx cdk destroy --app \"node dist/main.js\" --force",
+    "destroy:all": "npm run destroy:consumer && npm run destroy:producer && npm run destroy:stream",
+    "destroy": "npm run destroy:all",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "check-types": "turbo run check-types"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.149",
+    "@types/node": "^22.15.29",
+    "esbuild": "^0.25.5",
+    "prettier": "^3.5.3",
+    "ts-node": "^10.9.2",
+    "turbo": "^2.5.4",
+    "typescript": "^5.8.2"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "packageManager": "npm@10.9.2",
+  "workspaces": [
+    "packages/*"
+  ],
+  "dependencies": {
+    "@aws-sdk/client-kinesis": "^3.821.0",
+    "aws-cdk-lib": "^2.199.0",
+    "constructs": "^10.4.2"
+  }
+}
