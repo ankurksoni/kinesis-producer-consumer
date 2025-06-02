@@ -537,10 +537,10 @@ Below is an example of the output from the query, showing the flow of messages f
 
 | @timestamp | @log | @message |
 |------------|------|----------|
-| 2025-06-02T18:32:12.317+05:30 | 698926940450:/aws/lambda/consumer-lambda | 2025-06-02T13:02:12.317Z a5be9c7a-2aab-48b6-a901-c526ca16d863 INFO Consumer received: { message: 'Hello', time: 1748869330610 } |
-| 2025-06-02T18:32:10.992+05:30 | 698926940450:/aws/lambda/producer-lambda | 2025-06-02T13:02:10.992Z 2902acfc-9b93-4a84-8cc9-8f49d70ee20b INFO Producer sent: { message: 'Hello', time: 1748869330610 } |
-| 2025-06-02T18:27:13.574+05:30 | 698926940450:/aws/lambda/consumer-lambda | 2025-06-02T12:57:13.574Z 04b6bd7a-0ab1-49bd-9030-db8761c04d2c INFO Consumer received: { message: 'Hello', time: 1748869030824 } |
-| 2025-06-02T18:27:11.791+05:30 | 698926940450:/aws/lambda/producer-lambda | 2025-06-02T12:57:11.791Z 89fd140d-8d65-41df-8498-cecc1b43342a INFO Producer sent: { message: 'Hello', time: 1748869030824 } |
+| 2025-06-02T18:32:12.317+05:30 | /aws/lambda/consumer-lambda | 2025-06-02T13:02:12.317Z a5be9c7a-2aab-48b6-a901-c526ca16d863 INFO Consumer received: { message: 'Hello', time: 1748869330610 } |
+| 2025-06-02T18:32:10.992+05:30 | /aws/lambda/producer-lambda | 2025-06-02T13:02:10.992Z 2902acfc-9b93-4a84-8cc9-8f49d70ee20b INFO Producer sent: { message: 'Hello', time: 1748869330610 } |
+| 2025-06-02T18:27:13.574+05:30 | /aws/lambda/consumer-lambda | 2025-06-02T12:57:13.574Z 04b6bd7a-0ab1-49bd-9030-db8761c04d2c INFO Consumer received: { message: 'Hello', time: 1748869030824 } |
+| 2025-06-02T18:27:11.791+05:30 | /aws/lambda/producer-lambda | 2025-06-02T12:57:11.791Z 89fd140d-8d65-41df-8498-cecc1b43342a INFO Producer sent: { message: 'Hello', time: 1748869030824 } |
 
 ### Analyzing the Results
 
