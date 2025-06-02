@@ -104,6 +104,45 @@ flowchart TD
 - AWS CLI configured with appropriate credentials
 - AWS CDK v2 installed globally (optional, but recommended)
 
+## AWS Configuration Requirements
+
+### AWS CLI Setup
+
+This project requires a properly configured AWS CLI with valid credentials to deploy and run the infrastructure. Follow these steps to set up your AWS environment:
+
+1. **Install AWS CLI**: If not already installed, download and install the [AWS CLI](https://aws.amazon.com/cli/).
+
+2. **Configure AWS Credentials**: Run the following command and provide your AWS access key, secret key, default region, and output format:
+   ```bash
+   aws configure
+   ```
+
+3. **Verify Configuration**: Ensure your credentials are working correctly:
+   ```bash
+   aws sts get-caller-identity
+   ```
+
+### Required AWS Permissions
+
+The AWS user or role used for deployment needs these permissions:
+- CloudFormation: Full access to create, update, and delete stacks
+- IAM: Create roles and policies
+- Lambda: Create and manage functions
+- Kinesis: Create and manage streams
+- CloudWatch: Create log groups and set up event rules
+- SSM: Create and manage parameters
+
+### AWS CDK Bootstrap
+
+If you haven't used CDK in your AWS account/region before, you'll need to bootstrap CDK:
+```bash
+npx cdk bootstrap aws://YOUR_ACCOUNT_NUMBER/YOUR_REGION
+```
+
+### AWS Region Considerations
+
+This project can be deployed to any AWS region that supports all the required services (Lambda, Kinesis, etc.). The region is determined by your AWS CLI configuration or environment variables.
+
 ## Getting Started
 
 ### 1. Clone the Repository
@@ -308,6 +347,72 @@ Key features:
 - Event-driven architecture with Kinesis triggers
 - Configured with CloudWatch logs
 - Processes batches of records from the stream
+
+## Sample CloudWatch Logs
+
+This section shows sample CloudWatch logs from both Lambda functions in operation, demonstrating the data flow from producer to consumer.
+
+### Producer Lambda Logs
+
+The following logs show the producer Lambda function generating and sending events to the Kinesis stream every 5 minutes:
+
+```
+INIT_START Runtime Version: nodejs:20.v65	Runtime Version ARN: arn:aws:lambda:us-east-1::runtime:3cc38a00649d3324b5761bccca5fb52a862c8db1c1b85f796b7692836ee6baef
+START RequestId: 6663a27c-3105-4f8d-8459-80ea855734c6 Version: $LATEST
+2025-06-02T11:49:25.199Z	6663a27c-3105-4f8d-8459-80ea855734c6	INFO	Producer sent: { message: 'Hello', time: 1748864964227 }
+END RequestId: 6663a27c-3105-4f8d-8459-80ea855734c6
+REPORT RequestId: 6663a27c-3105-4f8d-8459-80ea855734c6	Duration: 1034.62 ms	Billed Duration: 1035 ms	Memory Size: 128 MB	Max Memory Used: 81 MB	Init Duration: 276.53 ms	
+START RequestId: da9e825d-23bf-4e52-917e-03bbfd2766b8 Version: $LATEST
+2025-06-02T11:51:22.578Z	da9e825d-23bf-4e52-917e-03bbfd2766b8	INFO	Producer sent: { message: 'Hello', time: 1748865082098 }
+END RequestId: da9e825d-23bf-4e52-917e-03bbfd2766b8
+REPORT RequestId: da9e825d-23bf-4e52-917e-03bbfd2766b8	Duration: 501.64 ms	Billed Duration: 502 ms	Memory Size: 128 MB	Max Memory Used: 81 MB	
+START RequestId: 7edd14e7-9428-4956-9e60-4efa6fe75093 Version: $LATEST
+2025-06-02T11:56:22.562Z	7edd14e7-9428-4956-9e60-4efa6fe75093	INFO	Producer sent: { message: 'Hello', time: 1748865382118 }
+END RequestId: 7edd14e7-9428-4956-9e60-4efa6fe75093
+REPORT RequestId: 7edd14e7-9428-4956-9e60-4efa6fe75093	Duration: 540.51 ms	Billed Duration: 541 ms	Memory Size: 128 MB	Max Memory Used: 81 MB	
+START RequestId: b71279cd-3320-4f90-848b-c93a65cf3aac Version: $LATEST
+2025-06-02T12:01:22.219Z	b71279cd-3320-4f90-848b-c93a65cf3aac	INFO	Producer sent: { message: 'Hello', time: 1748865682024 }
+END RequestId: b71279cd-3320-4f90-848b-c93a65cf3aac
+REPORT RequestId: b71279cd-3320-4f90-848b-c93a65cf3aac	Duration: 235.09 ms	Billed Duration: 236 ms	Memory Size: 128 MB	Max Memory Used: 81 MB	
+```
+
+From these logs, you can observe:
+- The Lambda cold start time (Init Duration: 276.53 ms)
+- Regular execution approximately every 5 minutes
+- The message content being sent to Kinesis
+- Performance metrics for each invocation
+
+### Consumer Lambda Logs
+
+The following logs show the consumer Lambda function being triggered by new records in the Kinesis stream and processing them:
+
+```
+INIT_START Runtime Version: nodejs:20.v65	Runtime Version ARN: arn:aws:lambda:us-east-1::runtime:3cc38a00649d3324b5761bccca5fb52a862c8db1c1b85f796b7692836ee6baef
+START RequestId: 7046b8c4-ce02-4e5d-ae94-9ce3cfb6d391 Version: $LATEST
+2025-06-02T11:52:14.028Z	7046b8c4-ce02-4e5d-ae94-9ce3cfb6d391	INFO	Consumer received: { message: 'Hello', time: 1748864964227 }
+END RequestId: 7046b8c4-ce02-4e5d-ae94-9ce3cfb6d391
+REPORT RequestId: 7046b8c4-ce02-4e5d-ae94-9ce3cfb6d391	Duration: 70.30 ms	Billed Duration: 71 ms	Memory Size: 128 MB	Max Memory Used: 68 MB	Init Duration: 138.24 ms	
+START RequestId: e8f86922-b028-4146-ac07-6dea389353eb Version: $LATEST
+2025-06-02T11:52:14.109Z	e8f86922-b028-4146-ac07-6dea389353eb	INFO	Consumer received: { message: 'Hello', time: 1748865082098 }
+END RequestId: e8f86922-b028-4146-ac07-6dea389353eb
+REPORT RequestId: e8f86922-b028-4146-ac07-6dea389353eb	Duration: 1.80 ms	Billed Duration: 2 ms	Memory Size: 128 MB	Max Memory Used: 68 MB	
+START RequestId: daa5f3f4-ed2c-470a-b163-7cee29e6edee Version: $LATEST
+2025-06-02T11:56:23.469Z	daa5f3f4-ed2c-470a-b163-7cee29e6edee	INFO	Consumer received: { message: 'Hello', time: 1748865382118 }
+END RequestId: daa5f3f4-ed2c-470a-b163-7cee29e6edee
+REPORT RequestId: daa5f3f4-ed2c-470a-b163-7cee29e6edee	Duration: 24.88 ms	Billed Duration: 25 ms	Memory Size: 128 MB	Max Memory Used: 68 MB	
+START RequestId: 7f549a34-5ef7-471f-a170-a1ce34ff84a0 Version: $LATEST
+2025-06-02T12:01:22.531Z	7f549a34-5ef7-471f-a170-a1ce34ff84a0	INFO	Consumer received: { message: 'Hello', time: 1748865682024 }
+END RequestId: 7f549a34-5ef7-471f-a170-a1ce34ff84a0
+REPORT RequestId: 7f549a34-5ef7-471f-a170-a1ce34ff84a0	Duration: 21.10 ms	Billed Duration: 22 ms	Memory Size: 128 MB	Max Memory Used: 68 MB	
+```
+
+From these logs, you can observe:
+- The consumer Lambda processing each record shortly after it's produced
+- The same message content that was sent by the producer
+- Significantly faster processing times compared to the producer (typically < 25ms)
+- Lower memory usage compared to the producer
+
+These logs demonstrate the complete data flow through the Kinesis stream, from the producer generating messages to the consumer processing them.
 
 ## Customization
 
