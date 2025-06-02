@@ -37,6 +37,12 @@ This project is a fully featured AWS infrastructure setup for streaming data pro
   - [Customizing the Producer](#customizing-the-producer)
   - [Customizing the Consumer](#customizing-the-consumer)
 - [Observability](#observability)
+- [Centralized Logging with CloudWatch Logs Insights](#centralized-logging-with-cloudwatch-logs-insights)
+  - [Setting Up Centralized Logging](#setting-up-centralized-logging)
+  - [Understanding the Query](#understanding-the-query)
+  - [Sample Query Results](#sample-query-results)
+  - [Analyzing the Results](#analyzing-the-results)
+  - [Additional Query Examples](#additional-query-examples)
 - [Cleanup](#cleanup)
 - [Troubleshooting](#troubleshooting)
   - [Lambda Module Errors](#lambda-module-errors)
@@ -490,6 +496,80 @@ All Lambda functions are configured with CloudWatch logs for monitoring and debu
 - Log groups have a retention period of 7 days
 - Custom log streams are created for each Lambda
 - All necessary IAM permissions are configured automatically
+
+## Centralized Logging with CloudWatch Logs Insights
+
+CloudWatch Logs Insights enables you to search and analyze your log data across multiple Lambda functions in a single view. This is particularly useful for tracking the flow of data through the Kinesis pipeline and correlating producer and consumer activities.
+
+### Setting Up Centralized Logging
+
+Follow these steps to set up a centralized view of both producer and consumer logs:
+
+1. Open **CloudWatch → Logs Insights** in the AWS Management Console
+
+2. In the query editor, select both log groups:
+   - `/aws/lambda/producer-lambda`
+   - `/aws/lambda/consumer-lambda`
+
+3. Enter a query to filter and display relevant log entries. For example:
+
+```
+fields @timestamp, @log, @message
+| sort @timestamp desc
+| limit 10000
+| filter @message like /.*\Q	\E.*\Q	INFO	Consumer received: { message: 'Hello', time: \E.*\Q }
+\E/ or @message like /.*\Q	\E.*\Q	INFO	Producer sent: { message: 'Hello', time: \E.*\Q }
+\E/
+```
+
+### Understanding the Query
+
+This query:
+- Selects the timestamp, log group, and message fields
+- Sorts results in descending order by timestamp (newest first)
+- Limits to 10,000 log entries for performance
+- Filters for only the specific log messages that show message production and consumption
+- Uses regular expressions with escaped characters for precise matching
+
+### Sample Query Results
+
+Below is an example of the output from the query, showing the flow of messages from producer to consumer:
+
+| @timestamp | @log | @message |
+|------------|------|----------|
+| 2025-06-02T18:32:12.317+05:30 | 698926940450:/aws/lambda/consumer-lambda | 2025-06-02T13:02:12.317Z a5be9c7a-2aab-48b6-a901-c526ca16d863 INFO Consumer received: { message: 'Hello', time: 1748869330610 } |
+| 2025-06-02T18:32:10.992+05:30 | 698926940450:/aws/lambda/producer-lambda | 2025-06-02T13:02:10.992Z 2902acfc-9b93-4a84-8cc9-8f49d70ee20b INFO Producer sent: { message: 'Hello', time: 1748869330610 } |
+| 2025-06-02T18:27:13.574+05:30 | 698926940450:/aws/lambda/consumer-lambda | 2025-06-02T12:57:13.574Z 04b6bd7a-0ab1-49bd-9030-db8761c04d2c INFO Consumer received: { message: 'Hello', time: 1748869030824 } |
+| 2025-06-02T18:27:11.791+05:30 | 698926940450:/aws/lambda/producer-lambda | 2025-06-02T12:57:11.791Z 89fd140d-8d65-41df-8498-cecc1b43342a INFO Producer sent: { message: 'Hello', time: 1748869030824 } |
+
+### Analyzing the Results
+
+From these results, you can observe:
+
+1. **End-to-End Flow**: You can trace each message from production to consumption by matching the `time` value in the message payload.
+
+2. **Processing Latency**: By comparing timestamps, you can measure the latency between when a message is produced and when it's consumed. In the example above, the consumer processed the message within approximately 1-2 seconds of it being produced.
+
+3. **Execution Pattern**: The regular 5-minute interval of the producer Lambda executions is visible, confirming the EventBridge rule is working as expected.
+
+### Additional Query Examples
+
+You can modify the query for different analysis needs:
+
+```
+# Find all errors across both functions
+fields @timestamp, @log, @message
+| filter @message like /ERROR/ or @message like /Error/ or @message like /exception/i
+| sort @timestamp desc
+
+# Calculate average processing latency
+filter @message like "Producer sent" or @message like "Consumer received"
+| parse @message "* * * * { message: '*', time: *" as datetime, requestId, logLevel, action, msg, timestamp
+| stats min(@timestamp) as start, max(@timestamp) as end by timestamp
+| sort timestamp desc
+| eval milliseconds=to_milliseconds(end-start)
+| avg(milliseconds)
+```
 
 ## Cleanup
 
