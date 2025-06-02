@@ -2,7 +2,7 @@
   "name": "kinesis-nx",
   "private": true,
   "scripts": {
-    "build": "npm run build:stream && npm run build:producer && npm run build:consumer",
+    "build": "npm run build:stream && npm run build:producer && npm run build:consumer && npm run build:lambda:all",
     "build:stream": "cd packages/infra/stream && tsc",
     "build:producer": "cd packages/infra/producer && tsc",
     "build:consumer": "cd packages/infra/consumer && tsc",
